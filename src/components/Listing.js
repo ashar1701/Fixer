@@ -8,7 +8,7 @@ const Listing = () => {
     return <div className='listing'>
         <Card class= "listing-card">
             <CardContent>
-                <Typography variant="h3">Listing asdas</Typography>
+                <Typography variant="h3">Listing</Typography>
             </CardContent>
         </Card>
     </div>

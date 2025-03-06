@@ -9,3 +9,7 @@ root.render(
     <App />
   </React.StrictMode>
 );
+<<<<<<< HEAD
+=======
+
+>>>>>>> b875a30 (react setup)

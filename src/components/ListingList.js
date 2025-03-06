@@ -1,4 +1,4 @@
-import Listing from 'Listing.js';
+import Listing from './Listing.js';
 
 const ListingList = () => {
     return <div className='listing-list'>

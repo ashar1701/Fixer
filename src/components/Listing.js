@@ -6,9 +6,9 @@ import {
 
 const Listing = () => {
     return <div className='listing'>
-        <Card>
+        <Card class= "listing-card">
             <CardContent>
-                <Typography variant="h1">Listing</Typography>
+                <Typography variant="h3">Listing</Typography>
             </CardContent>
         </Card>
     </div>

@@ -36,3 +36,11 @@ code {
   font-weight: 400;
   margin-left: 10px;
 }
+
+.navbar {
+  background-color: #EEEAEA;
+}
+
+.navbar-text {
+  font-family: 'Inter', sans-serif;
+}

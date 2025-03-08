@@ -16,37 +16,37 @@ const FILE_PATHS = [
     { csv: "./csv/amenities_booleans.csv", json: "./json/amenities_booleans.json" } // listing IDs matched to bool flags for amenities
 ]
 
-// function for converting Kam to Islam
+// function for converting CSV to JSON
 const convertCSVtoJSON = (file) => {
     return new Promise((resolve, reject) => {
-        let jsonData = [];
+        let jsonData = []; // variable to store temp json data
 
-        if (!fs.existsSync(file.csv)) {
+        if (!fs.existsSync(file.csv)) { // cant find the file
             console.error(`File not found: ${file.csv}`);
             return reject(`File not found: ${file.csv}`);
         }
 
-        console.log(`Processing: ${file.csv}`);
+        console.log(`Processing: ${file.csv}`); // state which file is being processed
 
-        fs.createReadStream(file.csv)
-            .pipe(csv())
-            .on("data", (row) => {
-                if (row["address"] && row["address"].trim() !== "")
+        fs.createReadStream(file.csv) // file reader
+            .pipe(csv()) // pipe ;)
+            .on("data", (row) => { // each row
+                if (row["address"] && row["address"].trim() !== "") // if there is no address, drop the entry
                     jsonData.push(row);
             })
-            .on("end", () => {
+            .on("end", () => {  // finished reading file, store data in json
                 fs.writeFileSync(file.json, JSON.stringify(jsonData, null, 2));
                 console.log(`Converted: ${file.csv} -> ${file.json}`);
                 resolve();
             })
-            .on("error", (err) => {
+            .on("error", (err) => { // !!! ERROR !!!
                 console.error(`Error processing ${file.csv}:`, err);
                 reject(err);
             });
     });
 };
 
-/* --- Routes --- */
+/* ----- Routes ----- */
 
 // route for converting the csv data to json (local storage)
 app.get("/api/convert-csv", async (req, res) => {
@@ -58,11 +58,6 @@ app.get("/api/convert-csv", async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Error converting CSV files", details: error });
     }
-});
-
-// default skeleton route
-app.get("/api/", (req, res) => {
-    res.send("Welcome to the Off-Campus Housing API!");
 });
 
 // route for retrieving all listings and their info
@@ -91,7 +86,7 @@ app.get("/api/listings/:id", (req, res) => {
     const listingId = req.params.id; // get ID from URL parameter
 
     fs.readFile(jsonFilePath, "utf8", (err, data) => {
-        if (err) {
+        if (err) { // error reading the json file
             console.error("Error reading listings JSON file:", err);
             return res.status(500).json({ error: "Failed to retrieve listings." });
         }
@@ -100,7 +95,7 @@ app.get("/api/listings/:id", (req, res) => {
             const listings = JSON.parse(data); // parse JSON file
             const listing = listings.find((item) => item.rentunit_id === listingId);
 
-            if (!listing) {
+            if (!listing) { // if it can't find a listing
                 return res.status(404).json({ error: "Listing not found." });
             }
 

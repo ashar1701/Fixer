@@ -9,8 +9,49 @@ import {
  import ThumbUpIcon from '@mui/icons-material/ThumbUp';
  import ThumbDownIcon from '@mui/icons-material/ThumbDown';
  import tempHouseImage from '../img/temp-house.jpeg';
+ import { useState, useEffect } from 'react';
 
 const Listing = ({ price, beds, baths, address }) => {
+    const [thumbsUpClicked, setThumbsUpClicked] = useState(false);
+    const [thumbsDownClicked, setThumbsDownClicked] = useState(false);
+
+    useEffect(() => {
+        const savedListings = JSON.parse(localStorage.getItem('thumbsUpListings')) || [];
+        const isSaved = savedListings.some(listing => listing.address === address);
+        setThumbsUpClicked(isSaved);
+    }, [address]);
+
+    const handleThumbsUpClick = () => {
+        setThumbsUpClicked(!thumbsUpClicked);
+        if (thumbsDownClicked) {
+            setThumbsDownClicked(false);
+        }
+
+        const savedListings = JSON.parse(localStorage.getItem('thumbsUpListings')) || [];
+        if (!thumbsUpClicked) {
+            savedListings.push({ price, beds, baths, address });
+        } else {
+            const index = savedListings.findIndex(listing => listing.address === address);
+            if (index !== -1) {
+                savedListings.splice(index, 1);
+            }
+        }
+        localStorage.setItem('thumbsUpListings', JSON.stringify(savedListings));
+    };
+    
+    const handleThumbsDownClick = () => {
+        setThumbsDownClicked(!thumbsDownClicked);
+        if (thumbsUpClicked) {
+            setThumbsUpClicked(false);
+            const savedListings = JSON.parse(localStorage.getItem('thumbsUpListings')) || [];
+            const index = savedListings.findIndex(listing => listing.address === address);
+            if (index !== -1) {
+                savedListings.splice(index, 1);
+                localStorage.setItem('thumbsUpListings', JSON.stringify(savedListings));
+            }
+        }
+    };
+
     return <div className='listing'>
         <Card class= "listing-card">
             <CardContent sx={{ padding: '0px' }}>
@@ -34,10 +75,10 @@ const Listing = ({ price, beds, baths, address }) => {
                     </Grid2>
                     <Grid2>
                         <div class="listing-buttons" style={{ marginTop: '10px', paddingRight: '10px' }}>
-                            <IconButton>
+                            <IconButton onClick={handleThumbsUpClick} color={thumbsUpClicked ? "primary" : "default"}>
                                 <ThumbUpIcon />
                             </IconButton>
-                            <IconButton>
+                            <IconButton onClick={handleThumbsDownClick} sx={{ color: thumbsDownClicked ? "#e32900" : "default" }}>
                                 <ThumbDownIcon />
                             </IconButton>
                         </div>

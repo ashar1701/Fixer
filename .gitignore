@@ -5,8 +5,15 @@
 /.pnp
 .pnp.js
 
+
 # testing
 /coverage
+
+#Firebase Secrets
+client/.env
+server/.env
+server/serviceAccount.json
+
 
 # production
 /build

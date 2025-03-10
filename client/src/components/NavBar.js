@@ -91,7 +91,10 @@ const NavBar = () => {
 
         {/* Thumbs Up Icon */}
         <IconButton
+          title="Saved Listings"
           aria-label="like"
+          component={Link}
+          to="/saved"
           sx={{
             color: "#1976d2",
             "&:active": {

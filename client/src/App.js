@@ -4,6 +4,7 @@ import ListingList from "./components/ListingList.js";
 import NavBar from "./components/NavBar.js";
 import Login from "./Login.js";
 import SignUp from "./SignUp.js";
+import ThumbsUp from "./ThumbsUp.js";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/saved" element={<ThumbsUp />} />
           <Route path="/" element={<ListingList />} />
         </Routes>
       </div>

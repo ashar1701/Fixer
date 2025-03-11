@@ -4,6 +4,8 @@ import { useState } from "react"
 import { AppBar, Toolbar, Button, Box, IconButton, styled } from "@mui/material"
 import { Link } from "react-router-dom"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp"
+import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import { useAuth } from "../authentication/AuthContext"
 
 // Styled components
 const StyledAppBar = styled(AppBar)({
@@ -72,16 +74,17 @@ const AuthButton = styled(Button)({
 
 const NavBar = () => {
   const [activeTab, setActiveTab] = useState("for-you")
+  const { isAuthenticated } = useAuth()
 
   return (
     <StyledAppBar position="static">
       <Toolbar>
         {/* Logo */}
-        <Logo component={Link} to="/" />
+        <Logo component={Link} to="/dashboard" />
 
         {/* Navigation Links */}
         <Box sx={{ display: "flex", flexGrow: 1, ml: 2 }}>
-          <NavButton component={Link} to="/" active={activeTab === "for-you"} onClick={() => setActiveTab("for-you")}>
+          <NavButton component={Link} to="/listings" active={activeTab === "for-you"} onClick={() => setActiveTab("for-you")}>
             For You
           </NavButton>
           <NavButton active={activeTab === "filters"} onClick={() => setActiveTab("filters")}>
@@ -107,12 +110,31 @@ const NavBar = () => {
 
         {/* Auth Buttons */}
         <Box sx={{ display: "flex", ml: 2 }}>
-          <AuthButton component={Link} to="/login">
-            Log in
-          </AuthButton>
-          <AuthButton component={Link} to="/signup">
-            Sign Up
-          </AuthButton>
+          {isAuthenticated ? (
+            <IconButton
+              title="Profile"
+              aria-label="profile"
+              component={Link}
+              to="/profile"
+              sx={{
+                color: "#1976d2",
+                "&:active": {
+                  transform: "scale(0.9)",
+                },
+              }}
+            >
+              <AccountCircleIcon sx={{ fontSize: "35px" }}/>
+            </IconButton>
+          ) : (
+            <>
+              <AuthButton component={Link} to="/login">
+                Log in
+              </AuthButton>
+              <AuthButton component={Link} to="/signup">
+                Sign Up
+              </AuthButton>
+            </>
+          )}
         </Box>
       </Toolbar>
     </StyledAppBar>

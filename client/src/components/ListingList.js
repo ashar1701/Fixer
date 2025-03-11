@@ -4,7 +4,7 @@ import { Grid2 } from "@mui/material";
 const ListingList = () => {
     return (
         <div className='listing-list'>
-            <Grid2 container spacing={2}>
+            <Grid2 container spacing={2} justifyContent="center" alignItems="center">
                 <Grid2 item xs={4}>
                     <Listing price="750,000" beds="4" baths="3" address="1234 Main St" />
                 </Grid2>

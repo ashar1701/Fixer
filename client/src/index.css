@@ -44,3 +44,8 @@ code {
 .navbar-text {
   font-family: 'Inter', sans-serif;
 }
+ 
+.saved-listings {
+  font-family: 'Inter', sans-serif;
+  margin-left: 10px;
+}

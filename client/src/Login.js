@@ -7,14 +7,19 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {auth} from "./firebase";
+import { useNavigate } from "react-router-dom";
+import { auth } from "./firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useAuth } from "./authentication/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,6 +30,8 @@ const Login = () => {
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       alert("User logged in successfully!");
+      login(); // Set the authentication state
+      navigate('/listings'); // Redirect to the ListingList page
     } catch (error) {
       alert(error.message);
     }

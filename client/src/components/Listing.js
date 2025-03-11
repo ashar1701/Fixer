@@ -7,13 +7,11 @@ import {
     Grid2
  } from '@mui/material';
  import ThumbUpIcon from '@mui/icons-material/ThumbUp';
- import ThumbDownIcon from '@mui/icons-material/ThumbDown';
  import tempHouseImage from '../img/temp-house.jpeg';
  import { useState, useEffect } from 'react';
 
 const Listing = ({ price, beds, baths, address }) => {
     const [thumbsUpClicked, setThumbsUpClicked] = useState(false);
-    const [thumbsDownClicked, setThumbsDownClicked] = useState(false);
 
     useEffect(() => {
         const savedListings = JSON.parse(localStorage.getItem('thumbsUpListings')) || [];
@@ -23,9 +21,6 @@ const Listing = ({ price, beds, baths, address }) => {
 
     const handleThumbsUpClick = () => {
         setThumbsUpClicked(!thumbsUpClicked);
-        if (thumbsDownClicked) {
-            setThumbsDownClicked(false);
-        }
 
         const savedListings = JSON.parse(localStorage.getItem('thumbsUpListings')) || [];
         if (!thumbsUpClicked) {
@@ -37,19 +32,6 @@ const Listing = ({ price, beds, baths, address }) => {
             }
         }
         localStorage.setItem('thumbsUpListings', JSON.stringify(savedListings));
-    };
-    
-    const handleThumbsDownClick = () => {
-        setThumbsDownClicked(!thumbsDownClicked);
-        if (thumbsUpClicked) {
-            setThumbsUpClicked(false);
-            const savedListings = JSON.parse(localStorage.getItem('thumbsUpListings')) || [];
-            const index = savedListings.findIndex(listing => listing.address === address);
-            if (index !== -1) {
-                savedListings.splice(index, 1);
-                localStorage.setItem('thumbsUpListings', JSON.stringify(savedListings));
-            }
-        }
     };
 
     return <div className='listing'>
@@ -77,9 +59,6 @@ const Listing = ({ price, beds, baths, address }) => {
                         <div class="listing-buttons" style={{ marginTop: '10px', paddingRight: '10px' }}>
                             <IconButton onClick={handleThumbsUpClick} color={thumbsUpClicked ? "primary" : "default"}>
                                 <ThumbUpIcon />
-                            </IconButton>
-                            <IconButton onClick={handleThumbsDownClick} sx={{ color: thumbsDownClicked ? "#e32900" : "default" }}>
-                                <ThumbDownIcon />
                             </IconButton>
                         </div>
                     </Grid2>

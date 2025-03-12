@@ -1,24 +1,24 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   Button,
-  Checkbox,
   Container,
-  FormControlLabel,
+  Paper,
   TextField,
   Typography,
-  Paper,
-} from "@mui/material";
-
-import {auth} from "./firebase"
-import {createUserWithEmailAndPassword} from "firebase/auth"
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { auth } from './firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import ModalSurvey from './components/ModalSurvey';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
+  const [openModal, setOpenModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,10 +28,18 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      alert("User registered successfully!");
+      alert('User signed up successfully!');
+      setOpenModal(true); // Show the modal
+      // Save to localStorage to indicate the user has signed up
+      localStorage.setItem('hasSignedUp', 'true');
+      navigate('/listings'); // Redirect to the ListingList page
     } catch (error) {
       alert(error.message);
     }
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
   };
 
   return (
@@ -65,12 +73,13 @@ const SignUp = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ mt: 2, bgcolor: "#1976D2", ":hover": { bgcolor: "#1565C0" } }}
+            sx={{ mt: 2, bgcolor: '#1976D2', ':hover': { bgcolor: '#1565C0' } }}
           >
             Sign Up
           </Button>
         </Box>
       </Paper>
+      <ModalSurvey open={openModal} handleClose={handleCloseModal} />
     </Container>
   );
 };

@@ -37,6 +37,12 @@ code {
   margin-left: 10px;
 }
 
+.listing-list {
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .navbar {
   background-color: #EEEAEA;
 }

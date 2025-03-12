@@ -4,7 +4,8 @@ import {
     CardMedia,
     Typography,
     IconButton,
-    Grid2
+    Grid2,
+    Tooltip
  } from '@mui/material';
  import ThumbUpIcon from '@mui/icons-material/ThumbUp';
  import tempHouseImage from '../img/temp-house.jpeg';
@@ -57,9 +58,11 @@ const Listing = ({ price, beds, baths, address }) => {
                     </Grid2>
                     <Grid2>
                         <div class="listing-buttons" style={{ marginTop: '10px', paddingRight: '10px' }}>
-                            <IconButton onClick={handleThumbsUpClick} color={thumbsUpClicked ? "primary" : "default"}>
-                                <ThumbUpIcon />
-                            </IconButton>
+                            <Tooltip title="Save Listing">
+                                <IconButton onClick={handleThumbsUpClick} color={thumbsUpClicked ? "primary" : "default"}>
+                                    <ThumbUpIcon />
+                                </IconButton>
+                            </Tooltip>
                         </div>
                     </Grid2>
                 </Grid2>

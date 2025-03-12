@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Listing from './components/Listing.js';
-import { Grid2, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 const ThumbsUp = () => {
     const [savedListings, setSavedListings] = useState([]);
@@ -12,19 +12,41 @@ const ThumbsUp = () => {
 
     return (
         <div>
-            <Typography variant="h1" class="saved-listings">Saved Listings</Typography>
-            <Grid2 container spacing={2} justifyContent="center" alignItems="center">
+            <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',  // Push button to the right
+                        alignItems: 'center',
+                        width: '100%',
+                        maxWidth: '1400px',  // Match the grid width
+                        margin: '0 auto',  // Center the container
+                        padding: '10px',
+                      }}
+                    >
+                <Typography variant="h1" class="saved-listings">Saved Listings</Typography>
+            </Box>
+            <Box
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)', // 4 items per row
+                    gap: 2, // Adjust spacing between items
+                    padding: 2,
+                    justifyContent: 'center', // Center the grid horizontally
+                    maxWidth: '1400px', // Set a maximum width for the grid container
+                    margin: '0 auto' // Center the grid container within its parent
+                }}
+            >
                 {savedListings.map((listing, index) => (
-                    <Grid2 item xs={12} sm={6} md={4} lg={3} key={index}>
+                    <Box key={index} sx={{ width: '100%' }}>
                         <Listing
                             price={listing.price}
                             beds={listing.beds}
                             baths={listing.baths}
                             address={listing.address}
                         />
-                    </Grid2>
+                    </Box>
                 ))}
-            </Grid2>
+            </Box>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AppBar, Toolbar, Button, Box, IconButton, styled } from "@mui/material"
+import { AppBar, Toolbar, Button, Box, IconButton, styled, Tooltip} from "@mui/material"
 import { Link } from "react-router-dom"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
@@ -93,20 +93,22 @@ const NavBar = () => {
         </Box>
 
         {/* Thumbs Up Icon */}
-        <IconButton
-          title="Saved Listings"
-          aria-label="like"
-          component={Link}
-          to="/saved"
-          sx={{
-            color: "#1976d2",
-            "&:active": {
-              transform: "scale(0.9)",
-            },
-          }}
-        >
-          <ThumbUpIcon />
-        </IconButton>
+        <Tooltip title="Saved Listings" placement="bottom">
+          <IconButton
+            title="Saved Listings"
+            aria-label="like"
+            component={Link}
+            to="/saved"
+            sx={{
+              color: "#1976d2",
+              "&:active": {
+                transform: "scale(0.9)",
+              },
+            }}
+          >
+            <ThumbUpIcon />
+          </IconButton>
+        </Tooltip>
 
         {/* Auth Buttons */}
         <Box sx={{ display: "flex", ml: 2 }}>

@@ -15,14 +15,12 @@ const RecommendedListings = () => {
       const modelData = await modelResponse.json();
       // Extract the array from the returned object
       const recommendedIds = modelData.recommended_rentunit_ids || [];
-      
-      // Now fetch the listing details for these IDs.
-      const listingsResponse = await fetch('/api/listings/by-ids', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: recommendedIds }),
-      });
+
+      // Assuming recommendedIds is an array of IDs, e.g. [276, 123, 456]
+      const queryParam = recommendedIds.join(",");
+      const listingsResponse = await fetch(`/api/listings/by-ids?ids=${queryParam}`);
       const listingsData = await listingsResponse.json();
+
       // Ensure the listingsData is an array.
       const listingsArray = Array.isArray(listingsData) ? listingsData : [];
       setListings(listingsArray);

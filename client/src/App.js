@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ListingList from "./components/ListingList.js";
 import NavBar from "./components/NavBar.js";
 import Login from "./Login.js";
@@ -9,6 +9,7 @@ import ThumbsUp from "./ThumbsUp.js";
 import { AuthProvider, useAuth } from './authentication/AuthContext';
 import ProtectedRoute from './authentication/ProtectedRoute';
 import RecommendedListings from "./components/RecommendedListings.js";
+import HomePage from "./HomePage.js";
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -24,7 +25,7 @@ const AppContent = () => {
           <Route path="/saved" element={<ProtectedRoute element={<ThumbsUp />} />} />
           <Route path="/listings/filter" element={<ProtectedRoute element={<ListingList />} />} />
           <Route path="/listings/foryou" element={<ProtectedRoute element={<RecommendedListings />} />} />
-          <Route path="/" element={<Navigate to="/listings/filter" />} />
+          <Route path="/" element={<HomePage />} />
         </Routes>
       </div>
     </>

@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { AppBar, Toolbar, Button, Box, IconButton, styled, Tooltip} from "@mui/material"
+import { AppBar, Toolbar, Button, Box, IconButton, styled, Tooltip } from "@mui/material"
 import { Link } from "react-router-dom"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import { useAuth } from "../authentication/AuthContext"
+import { useNavigate } from 'react-router-dom';
 
 // Styled components
 const StyledAppBar = styled(AppBar)({
@@ -75,6 +76,7 @@ const AuthButton = styled(Button)({
 const NavBar = () => {
   const [activeTab, setActiveTab] = useState("for-you")
   const { isAuthenticated } = useAuth()
+  const navigate = useNavigate();
 
   return (
     <StyledAppBar position="static">
@@ -84,10 +86,16 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <Box sx={{ display: "flex", flexGrow: 1, ml: 2 }}>
-          <NavButton component={Link} to="/listings" active={activeTab === "for-you"} onClick={() => setActiveTab("for-you")}>
+          <NavButton active={activeTab === "for-you"} onClick={() => {
+            setActiveTab("for-you");
+            navigate("/listings/foryou");
+          }}>
             For You
           </NavButton>
-          <NavButton active={activeTab === "filters"} onClick={() => setActiveTab("filters")}>
+          <NavButton active={activeTab === "filters"} onClick={() => {
+            setActiveTab("filters");
+            navigate("/listings/filter");
+          }}>
             Filters
           </NavButton>
         </Box>
@@ -125,7 +133,7 @@ const NavBar = () => {
                 },
               }}
             >
-              <AccountCircleIcon sx={{ fontSize: "35px" }}/>
+              <AccountCircleIcon sx={{ fontSize: "35px" }} />
             </IconButton>
           ) : (
             <>

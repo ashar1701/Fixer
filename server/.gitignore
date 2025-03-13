@@ -30,7 +30,7 @@ json/
 
 # ignore the venv
 # !!! CREATE WITH pythom -m venv venv !!!
-# !!! ACTIVATE WITH venv\Scripts\Actvate (windows) or source venv/bin/activate (mac) !!!
+# !!! ACTIVATE WITH venv\Scripts\Activate (windows) or source venv/bin/activate (mac) !!!
 # !!! THEN RUN pip install -r requirements.txt !!!
 # !!! UPDATE requirements.txt WITH pip freeze > requirements.txt
 /model/venv/

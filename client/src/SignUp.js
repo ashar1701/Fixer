@@ -32,7 +32,7 @@ const SignUp = () => {
       setOpenModal(true); // Show the modal
       // Save to localStorage to indicate the user has signed up
       localStorage.setItem('hasSignedUp', 'true');
-      navigate('/listings'); // Redirect to the ListingList page
+      navigate('/listings/filter'); // Redirect to the ListingList page
     } catch (error) {
       alert(error.message);
     }

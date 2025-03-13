@@ -8,6 +8,7 @@ import Dashboard from "./Dashboard";
 import ThumbsUp from "./ThumbsUp.js";
 import { AuthProvider, useAuth } from './authentication/AuthContext';
 import ProtectedRoute from './authentication/ProtectedRoute';
+import RecommendedListings from "./components/RecommendedListings.js";
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -21,8 +22,9 @@ const AppContent = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
           <Route path="/saved" element={<ProtectedRoute element={<ThumbsUp />} />} />
-          <Route path="/listings" element={<ProtectedRoute element={<ListingList />} />} />
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/listings/filter" element={<ProtectedRoute element={<ListingList />} />} />
+          <Route path="/listings/foryou" element={<ProtectedRoute element={<RecommendedListings />} />} />
+          <Route path="/" element={<Navigate to="/listings/filter" />} />
         </Routes>
       </div>
     </>

@@ -4,7 +4,6 @@ const fs = require("fs");
 const csv = require("csv-parser");
 const admin = require("./firebaseAdmin");
 
-
 const app = express();
 const PORT = process.env.PORT || 5000; // default to port 5000
 
@@ -93,9 +92,7 @@ function mergeListingsData(listings, amenities) {
     }));
 }
 
-// =====================
-// Route: Get All Listings (Merged)
-// =====================
+// route for getting all listings (merged by id)
 app.get("/api/listings/all", (req, res) => {
     const listingsPath = "./json/listing_info_200.json";
     const amenitiesPath = "./json/amenities_booleans.json";
@@ -123,44 +120,7 @@ app.get("/api/listings/all", (req, res) => {
     });
 });
 
-// =====================
-// Route: Get Listing by ID (Merged)
-// =====================
-app.get("/api/listings/:id", (req, res) => {
-    const listingId = req.params.id;
-    const listingsPath = "./json/listing_info_200.json";
-    const amenitiesPath = "./json/amenities_booleans.json";
-
-    fs.readFile(listingsPath, "utf8", (err, listingsData) => {
-        if (err) {
-            console.error("Error reading listings JSON file:", err);
-            return res.status(500).json({ error: "Failed to retrieve listings." });
-        }
-        fs.readFile(amenitiesPath, "utf8", (err, amenitiesData) => {
-            if (err) {
-                console.error("Error reading amenities JSON file:", err);
-                return res.status(500).json({ error: "Failed to retrieve amenities." });
-            }
-            try {
-                const listings = JSON.parse(listingsData);
-                const amenities = JSON.parse(amenitiesData);
-                const mergedListings = mergeListingsData(listings, amenities);
-                const listing = mergedListings.find(item => item.rentunit_id === listingId);
-                if (!listing) {
-                    return res.status(404).json({ error: "Listing not found." });
-                }
-                res.json(listing);
-            } catch (parseError) {
-                console.error("Error parsing JSON:", parseError);
-                res.status(500).json({ error: "Invalid JSON format." });
-            }
-        });
-    });
-});
-
-// =====================
-// Route: Filter Listings Based on User Preferences
-// =====================
+// route to filter ids based on user critera selection
 // Expected request body example:
 // {
 //   "priceRange": [100, 1000],
@@ -251,11 +211,14 @@ app.post("/api/listings/filter", (req, res) => {
     });
 });
 
-app.post("/api/listings/by-ids", (req, res) => {
-    const { ids } = req.body; // Expecting { ids: ["276", "123", ...] }
-    if (!ids || !Array.isArray(ids)) {
-        return res.status(400).json({ error: "Invalid request: expected an array of IDs." });
+// Route: Get Listings by Multiple IDs via GET query parameter
+app.get("/api/listings/by-ids", (req, res) => {
+    const idsParam = req.query.ids;
+    if (!idsParam) {
+        return res.status(400).json({ error: "Missing query parameter: ids" });
     }
+    // Expecting ids as a comma-separated list, e.g., "276,123,456"
+    const ids = idsParam.split(",").map(id => id.trim());
 
     const listingsPath = "./json/listing_info_200.json";
     const amenitiesPath = "./json/amenities_booleans.json";
@@ -274,7 +237,10 @@ app.post("/api/listings/by-ids", (req, res) => {
                 const listings = JSON.parse(listingsData);
                 const amenities = JSON.parse(amenitiesData);
                 const mergedListings = mergeListingsData(listings, amenities);
-                const filteredListings = mergedListings.filter(item => ids.includes(item.rentunit_id));
+                // Filter listings whose rentunit_id is in the ids array (as strings)
+                const filteredListings = mergedListings.filter(item =>
+                    ids.includes(item.rentunit_id)
+                );
                 res.json(filteredListings);
             } catch (parseError) {
                 console.error("Error parsing JSON:", parseError);
@@ -283,6 +249,7 @@ app.post("/api/listings/by-ids", (req, res) => {
         });
     });
 });
+
 
 /* ----- model route ----- */
 const { spawn } = require('child_process');

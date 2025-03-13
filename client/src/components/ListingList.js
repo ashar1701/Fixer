@@ -1,72 +1,99 @@
-import React, { useState } from 'react';
-import Listing from './Listing';
-import { Box, Button, Typography } from '@mui/material';
-import ModalSurvey from './ModalSurvey';
-
-const listings = [
-  { price: "750,000", beds: "4", baths: "3", address: "1234 Main St" },
-  { price: "1,200,000", beds: "5", baths: "4", address: "5678 Elm St" },
-  { price: "250,000", beds: "1", baths: "1", address: "895 Box Cres" },
-  { price: "1,200,000", beds: "5", baths: "4", address: "72 Bane St" },
-  { price: "3,500,000", beds: "6", baths: "5", address: "143 Number St" },
-  { price: "180,000", beds: "1", baths: "1", address: "35 Button Cres" },
-  { price: "150,000", beds: "2", baths: "1", address: "589 Bonga St" },
-  { price: "3,000,000", beds: "6", baths: "3", address: "1203 Plate Cres" },
-  { price: "1,100,000", beds: "3", baths: "6", address: "394 Forest Dr" },
-  { price: "1,500,000", beds: "5", baths: "1", address: "2367 Tree St" },
-  { price: "1,700,000", beds: "7", baths: "5", address: "37594 Leaf Dr" },
-  { price: "1,000,000", beds: "2", baths: "2", address: "67 Ground Rd" }
-];
+import React, { useState, useEffect } from "react";
+import Listing from "./Listing";
+import { Box, Button, Typography } from "@mui/material";
+import ModalSurvey from "./ModalSurvey";
 
 const ListingList = () => {
+  const [listings, setListings] = useState([]);
   const [openModal, setOpenModal] = useState(false);
 
+  // Fetch all listings from the backend
+  const fetchAllListings = () => {
+    fetch("/api/listings/all")
+      .then((res) => res.json())
+      .then((data) => setListings(data))
+      .catch((error) => console.error("Error fetching listings:", error));
+  };
+
+  // Fetch filtered listings based on user preferences
+  const fetchFilteredListings = (preferences) => {
+    fetch("/api/listings/filter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(preferences),
+    })
+      .then((res) => res.json())
+      .then((data) => setListings(data))
+      .catch((error) => console.error("Error fetching filtered listings:", error));
+  };
+
+  // Fetch listings on mount
+  useEffect(() => {
+    fetchAllListings();
+  }, []);
+
+  // When the survey modal closes, update the listings based on preferences
+  const handleModalClose = () => {
+    setOpenModal(false);
+    const savedPreferences = JSON.parse(localStorage.getItem("preferences"));
+    if (savedPreferences) {
+      fetchFilteredListings(savedPreferences);
+    } else {
+      fetchAllListings();
+    }
+  };
+
   const handleOpenModal = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
 
   return (
     <div className="listing-list">
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',  // Push button to the right
-            alignItems: 'center',
-            width: '100%',
-            maxWidth: '1400px',  // Match the grid width
-            margin: '0 auto',  // Center the container
-            padding: '10px',
-          }}
-        >
-            <Typography variant="h1" class='saved-listings' sx={{ marginRight: '10px' }}>Listings</Typography>   
-            <Button
-                variant="contained"
-                onClick={handleOpenModal}
-                sx={{ maxHeight: '50px', padding: '6px 16px' }} // Optional padding to maintain consistent button size
-            >
-                Change Preferences
-            </Button>
-        </Box>
-
-      {/* Grid layout with 4 columns per row */}
       <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)', // 4 items per row
-          gap: 2, // Adjust spacing between items
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+          maxWidth: "1400px",
+          margin: "0 auto",
+          padding: "10px",
+        }}
+      >
+        <Typography
+          variant="h4"
+          className="saved-listings"
+          sx={{ marginRight: "10px", fontFamily: 'Helvetica, Arial, sans-serif' }}
+        >
+          View All Listings
+        </Typography>
+        <Button variant="contained" onClick={handleOpenModal} sx={{ maxHeight: "50px", padding: "6px 16px" }}>
+          Change Preferences
+        </Button>
+      </Box>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 2,
           padding: 2,
-          justifyContent: 'center',
-          maxWidth: '1400px',
-          paddingTop: '0px'
+          justifyContent: "center",
+          maxWidth: "1400px",
+          paddingTop: "0px",
         }}
       >
         {listings.map((listing, index) => (
-          <Box key={index} sx={{ width: '100%' }}>
-            <Listing {...listing} />
+          <Box key={index} sx={{ width: "100%" }}>
+            <Listing
+              price={listing.rent}
+              beds={listing.bedrooms_vacant}
+              address={listing.address}
+              comments={listing.comments}
+            />
           </Box>
         ))}
       </Box>
 
-      <ModalSurvey open={openModal} handleClose={handleCloseModal} />
+      <ModalSurvey open={openModal} handleClose={handleModalClose} />
     </div>
   );
 };

@@ -14,22 +14,22 @@ app.use(express.json()); // parse JSON request bodies
 
 const verifyToken = async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
-  
+
     if (!token) return res.status(401).json({ message: "Unauthorized" });
-  
+
     try {
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      req.user = decodedToken; // Attach user data to the request
-      next();
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        req.user = decodedToken; // Attach user data to the request
+        next();
     } catch (error) {
-      res.status(401).json({ message: "Invalid token" });
+        res.status(401).json({ message: "Invalid token" });
     }
-  };
+};
 
 
-  app.get("/protected", verifyToken, (req, res) => {
+app.get("/protected", verifyToken, (req, res) => {
     res.json({ message: `Welcome, ${req.user.email}!` });
-  });
+});
 
 // array variables to store json listing data
 const FILE_PATHS = [
@@ -81,52 +81,254 @@ app.get("/api/convert-csv", async (req, res) => {
     }
 });
 
-// route for retrieving all listings and their info
-app.get("/api/listings/all", (req, res) => {
-    const jsonFilePath = "./json/listing_info_200.json";
+// Helper function to merge listings and amenities data by rentunit_id.
+function mergeListingsData(listings, amenities) {
+    const amenitiesMap = {};
+    amenities.forEach(item => {
+        amenitiesMap[item.rentunit_id] = item;
+    });
+    return listings.map(listing => ({
+        ...listing,
+        ...(amenitiesMap[listing.rentunit_id] || {})
+    }));
+}
 
-    fs.readFile(jsonFilePath, "utf8", (err, data) => {
+// =====================
+// Route: Get All Listings (Merged)
+// =====================
+app.get("/api/listings/all", (req, res) => {
+    const listingsPath = "./json/listing_info_200.json";
+    const amenitiesPath = "./json/amenities_booleans.json";
+
+    fs.readFile(listingsPath, "utf8", (err, listingsData) => {
         if (err) {
             console.error("Error reading listings JSON file:", err);
             return res.status(500).json({ error: "Failed to retrieve listings." });
         }
-
-        try {
-            const listings = JSON.parse(data); // parse JSON string to object
-            res.json(listings); // send data as JSON response
-        } catch (parseError) {
-            console.error("Error parsing JSON:", parseError);
-            res.status(500).json({ error: "Invalid JSON format." });
-        }
+        fs.readFile(amenitiesPath, "utf8", (err, amenitiesData) => {
+            if (err) {
+                console.error("Error reading amenities JSON file:", err);
+                return res.status(500).json({ error: "Failed to retrieve amenities." });
+            }
+            try {
+                const listings = JSON.parse(listingsData);
+                const amenities = JSON.parse(amenitiesData);
+                const mergedListings = mergeListingsData(listings, amenities);
+                res.json(mergedListings);
+            } catch (parseError) {
+                console.error("Error parsing JSON:", parseError);
+                res.status(500).json({ error: "Invalid JSON format." });
+            }
+        });
     });
 });
 
-// route for retrieving listing by its id
+// =====================
+// Route: Get Listing by ID (Merged)
+// =====================
 app.get("/api/listings/:id", (req, res) => {
-    const jsonFilePath = "./json/listing_info_200.json";
-    const listingId = req.params.id; // get ID from URL parameter
+    const listingId = req.params.id;
+    const listingsPath = "./json/listing_info_200.json";
+    const amenitiesPath = "./json/amenities_booleans.json";
 
-    fs.readFile(jsonFilePath, "utf8", (err, data) => {
-        if (err) { // error reading the json file
+    fs.readFile(listingsPath, "utf8", (err, listingsData) => {
+        if (err) {
             console.error("Error reading listings JSON file:", err);
             return res.status(500).json({ error: "Failed to retrieve listings." });
         }
-
-        try {
-            const listings = JSON.parse(data); // parse JSON file
-            const listing = listings.find((item) => item.rentunit_id === listingId);
-
-            if (!listing) { // if it can't find a listing
-                return res.status(404).json({ error: "Listing not found." });
+        fs.readFile(amenitiesPath, "utf8", (err, amenitiesData) => {
+            if (err) {
+                console.error("Error reading amenities JSON file:", err);
+                return res.status(500).json({ error: "Failed to retrieve amenities." });
             }
+            try {
+                const listings = JSON.parse(listingsData);
+                const amenities = JSON.parse(amenitiesData);
+                const mergedListings = mergeListingsData(listings, amenities);
+                const listing = mergedListings.find(item => item.rentunit_id === listingId);
+                if (!listing) {
+                    return res.status(404).json({ error: "Listing not found." });
+                }
+                res.json(listing);
+            } catch (parseError) {
+                console.error("Error parsing JSON:", parseError);
+                res.status(500).json({ error: "Invalid JSON format." });
+            }
+        });
+    });
+});
 
-            res.json(listing); // send the found listing
-        } catch (parseError) {
-            console.error("Error parsing JSON:", parseError);
-            res.status(500).json({ error: "Invalid JSON format." });
+// =====================
+// Route: Filter Listings Based on User Preferences
+// =====================
+// Expected request body example:
+// {
+//   "priceRange": [100, 1000],
+//   "bedrooms": 1,
+//   "proximity": 50,
+//   "utilitiesIncluded": true,
+//   "leaseTerms": { "fourMonths": true, "eightMonths": false, "twelvePlusMonths": false }
+// }
+app.post("/api/listings/filter", (req, res) => {
+    const { priceRange, bedrooms, proximity, utilitiesIncluded, leaseTerms } = req.body;
+    const listingsPath = "./json/listing_info_200.json";
+    const amenitiesPath = "./json/amenities_booleans.json";
+
+    fs.readFile(listingsPath, "utf8", (err, listingsData) => {
+        if (err) {
+            console.error("Error reading listings JSON file:", err);
+            return res.status(500).json({ error: "Failed to retrieve listings." });
+        }
+        fs.readFile(amenitiesPath, "utf8", (err, amenitiesData) => {
+            if (err) {
+                console.error("Error reading amenities JSON file:", err);
+                return res.status(500).json({ error: "Failed to retrieve amenities." });
+            }
+            try {
+                const listings = JSON.parse(listingsData);
+                const amenities = JSON.parse(amenitiesData);
+                const mergedListings = mergeListingsData(listings, amenities);
+
+                // Apply filtering based on user preferences.
+                const filteredListings = mergedListings.filter(listing => {
+                    let matches = true;
+
+                    // Price Range filtering: Convert listing.rent to a number.
+                    if (priceRange && Array.isArray(priceRange) && priceRange.length === 2) {
+                        const [minPrice, maxPrice] = priceRange;
+                        const price = parseFloat(listing.rent);
+                        if (isNaN(price) || price < minPrice || price > maxPrice) {
+                            matches = false;
+                        }
+                    }
+
+                    // Bedrooms filtering: Compare listing.bedrooms_vacant.
+                    if (bedrooms) {
+                        const listingBedrooms = parseInt(listing.bedrooms_vacant, 10);
+                        if (isNaN(listingBedrooms) || listingBedrooms !== parseInt(bedrooms, 10)) {
+                            matches = false;
+                        }
+                    }
+
+                    // Proximity filtering: Compare listing.distance (assuming in km).
+                    if (proximity) {
+                        const distance = parseFloat(listing.distance);
+                        if (isNaN(distance) || distance > parseFloat(proximity)) {
+                            matches = false;
+                        }
+                    }
+
+                    // Utilities filtering: Check if listing has utilities.
+                    if (typeof utilitiesIncluded === "boolean" && utilitiesIncluded === true) {
+                        if (listing["Utilities Incl"] !== "1") {
+                            matches = false;
+                        }
+                    }
+
+                    // Lease Terms filtering: If any lease term is selected, listing.lease_term should match one.
+                    if (leaseTerms) {
+                        const allowedTerms = [];
+                        if (leaseTerms.fourMonths) allowedTerms.push(4);
+                        if (leaseTerms.eightMonths) allowedTerms.push(8);
+                        if (leaseTerms.twelvePlusMonths) allowedTerms.push(12); // For simplicity, check for exactly 12.
+                        if (allowedTerms.length > 0) {
+                            const term = parseInt(listing.lease_term, 10);
+                            if (!allowedTerms.includes(term)) {
+                                matches = false;
+                            }
+                        }
+                    }
+
+                    return matches;
+                });
+
+                res.json(filteredListings);
+            } catch (parseError) {
+                console.error("Error parsing JSON:", parseError);
+                res.status(500).json({ error: "Invalid JSON format." });
+            }
+        });
+    });
+});
+
+app.post("/api/listings/by-ids", (req, res) => {
+    const { ids } = req.body; // Expecting { ids: ["276", "123", ...] }
+    if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ error: "Invalid request: expected an array of IDs." });
+    }
+
+    const listingsPath = "./json/listing_info_200.json";
+    const amenitiesPath = "./json/amenities_booleans.json";
+
+    fs.readFile(listingsPath, "utf8", (err, listingsData) => {
+        if (err) {
+            console.error("Error reading listings JSON file:", err);
+            return res.status(500).json({ error: "Failed to retrieve listings." });
+        }
+        fs.readFile(amenitiesPath, "utf8", (err, amenitiesData) => {
+            if (err) {
+                console.error("Error reading amenities JSON file:", err);
+                return res.status(500).json({ error: "Failed to retrieve amenities." });
+            }
+            try {
+                const listings = JSON.parse(listingsData);
+                const amenities = JSON.parse(amenitiesData);
+                const mergedListings = mergeListingsData(listings, amenities);
+                const filteredListings = mergedListings.filter(item => ids.includes(item.rentunit_id));
+                res.json(filteredListings);
+            } catch (parseError) {
+                console.error("Error parsing JSON:", parseError);
+                return res.status(500).json({ error: "Invalid JSON format." });
+            }
+        });
+    });
+});
+
+/* ----- model route ----- */
+const { spawn } = require('child_process');
+const path = require('path');
+
+// route to run the Python model and return recommended rentunit IDs
+app.get('/api/model/recommend', (req, res) => {
+    // Path to the Python interpreter inside your venv (adjust for your OS)
+    const pythonPath = path.join(__dirname, 'model', 'venv', 'Scripts', 'python');
+    // Path to the model script
+    const modelScript = path.join(__dirname, 'model', 'model.py');
+    // Set the working directory to the 'model' folder so that relative paths in model.py work
+    const options = { cwd: path.join(__dirname, 'model') };
+
+    console.log('Using Python interpreter:', pythonPath);
+    console.log('Using model script:', modelScript);
+    console.log('Working directory:', options.cwd);
+
+    const pythonProcess = spawn(pythonPath, [modelScript], options);
+
+    let output = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+        output += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error('Python stderr:', data.toString());
+    });
+
+    pythonProcess.on('close', (code) => {
+        try {
+            // Use a regular expression to extract the first JSON object from the output.
+            const jsonMatch = output.match(/{[\s\S]*}/);
+            if (!jsonMatch) {
+                throw new Error("No JSON object found in model output");
+            }
+            const parsedOutput = JSON.parse(jsonMatch[0]);
+            res.json(parsedOutput);
+        } catch (err) {
+            console.error('Error parsing model output:', err, 'Full output:', output);
+            res.status(500).json({ error: 'Failed to parse model output.' });
         }
     });
 });
+
 
 // start server
 app.listen(PORT, () => {

@@ -59,9 +59,8 @@ const ListingList = () => {
         }}
       >
         <Typography
-          variant="h4"
-          className="saved-listings"
-          sx={{ marginRight: "10px", fontFamily: 'Helvetica, Arial, sans-serif' }}
+          variant="h1"
+          class="saved-listings-title"
         >
           View All Listings
         </Typography>

@@ -37,7 +37,7 @@ const RecommendedListings = () => {
   }, []);
 
   return (
-    <div className="recommended-listings">
+    <div className="listing-list">
       <Box
         sx={{
           display: 'flex',
@@ -49,7 +49,7 @@ const RecommendedListings = () => {
           padding: '10px',
         }}
       >
-        <Typography variant="h4" sx={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+        <Typography variant="h1" class="recommended-listings-title">
           Recommended Listings
         </Typography>
         <Button variant="contained" onClick={fetchRecommendations} sx={{ maxHeight: '50px', padding: '6px 16px' }}>

@@ -28,7 +28,6 @@ const SignUp = () => {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      alert('User signed up successfully!');
       setOpenModal(true); // Show the modal
       // Save to localStorage to indicate the user has signed up
       localStorage.setItem('hasSignedUp', 'true');

@@ -7,6 +7,7 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import { useAuth } from "../authentication/AuthContext"
 import { useNavigate } from 'react-router-dom';
+import logo from "../img/fxr-high-resolution-logo-grayscale.svg"
 
 // Styled components
 const StyledAppBar = styled(AppBar)({
@@ -19,9 +20,11 @@ const StyledAppBar = styled(AppBar)({
 const Logo = styled(Box)({
   width: 48,
   height: 48,
-  borderRadius: "50%",
-  backgroundColor: "black",
+  backgroundColor: "transparent",
   marginRight: 16,
+  backgroundImage: `url(${logo})`, // Update this path to your image
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
 })
 
 const NavButton = styled(Button)(({ active }) => ({

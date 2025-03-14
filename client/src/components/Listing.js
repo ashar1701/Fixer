@@ -170,7 +170,7 @@ const Listing = ({ price, beds, address, comments }) => {
 
   return (
     <>
-      <Card className="listing-card" onClick={handleCardClick} sx={{ cursor: "pointer", fontFamily: 'Helvetica, Arial, sans-serif' }}>
+      <Card className="listing-card" onClick={handleCardClick} sx={{ cursor: "pointer", fontFamily: 'Inter, sans-serif', borderRadius: "10px" }}>
         <CardContent sx={{ padding: 0 }}>
           <CardMedia
             component="img"
@@ -179,15 +179,15 @@ const Listing = ({ price, beds, address, comments }) => {
             alt="placeholder"
             sx={{ borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}
           />
-          <Box sx={{ display: "flex", justifyContent: "space-between", p: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", p: 1, px: 2}}>
             <Box>
-              <Typography variant="h3" sx={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+              <Typography variant="h2" class='listing-text'>
                 ${price}
               </Typography>
-              <Typography variant="h5" sx={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+              <Typography variant="h4" class='listing-text'>
                 {beds} Bed
               </Typography>
-              <Typography variant="h5" sx={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+              <Typography variant="h4" class='listing-description'>
                 {address}
               </Typography>
             </Box>

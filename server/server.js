@@ -296,6 +296,45 @@ app.get('/api/model/recommend', (req, res) => {
     });
 });
 
+app.get('/api/googlemaps', (req, res) => {
+    const listingAddress = req.query.address;
+    if (!listingAddress) {
+        return res.status(400).json({ error: "Missing listing address" });
+    }
+    
+    // Adjust the path to your virtual environment's Python executable.
+    // For Windows, it might be: 'model/venv/Scripts/python'
+    // For macOS/Linux, it might be: 'model/venv/bin/python'
+    const pythonPath = path.join(__dirname, 'googleAPI', 'venv2', 'Scripts', 'python');
+    
+    // Path to the Python script created in Step 1.
+    const scriptPath = path.join(__dirname, 'googleAPI', 'mapsAPI.py');
+
+    // Spawn the Python process, passing the listing address as an argument.
+    const pythonProcess = spawn(pythonPath, [scriptPath, listingAddress], {
+        cwd: path.join(__dirname, 'googleAPI')
+    });
+
+    let output = '';
+    pythonProcess.stdout.on('data', (data) => {
+        output += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error("Python error:", data.toString());
+    });
+
+    pythonProcess.on('close', () => {
+        try {
+            const jsonOutput = JSON.parse(output);
+            res.json(jsonOutput);
+        } catch (err) {
+            console.error("Error parsing Python output:", err);
+            res.status(500).json({ error: "Error parsing Python output" });
+        }
+    });
+});
+
 
 // start server
 app.listen(PORT, () => {
